@@ -1,5 +1,6 @@
 package trafficlight.ctrl;
 
+import trafficlight.gui.TrafficLight;
 import trafficlight.gui.TrafficLightGui;
 import trafficlight.states.State;
 
@@ -17,6 +18,8 @@ public class TrafficLightCtrl {
 
     private final TrafficLightGui gui;
 
+    private static TrafficLightCtrl trafficLightCtrl = null; //variable zur implementierung des Singleton
+
     private boolean doRun = true;
 
     public TrafficLightCtrl() {
@@ -25,6 +28,7 @@ public class TrafficLightCtrl {
         gui = new TrafficLightGui(this);
         gui.setVisible(true);
         //TODO useful to update the current state
+        currentState.notifyObservers(); // updated am anfang den current state (green) beim instanzieren von TrafficLightCtrl
     }
 
     private void initStates() {
@@ -33,6 +37,8 @@ public class TrafficLightCtrl {
             public State getNextState() {
                 previousState = currentState;
                 //TODO useful to update the current state and the old one
+                currentState.notifyObservers(); //updated den currentstate
+                yellowState.notifyObservers();  //und den next state
                 return yellowState;
             }
             @Override
@@ -46,6 +52,8 @@ public class TrafficLightCtrl {
             public State getNextState() {
                 previousState = currentState;
                 //TODO useful to update the current state and the old one
+                currentState.notifyObservers();
+                yellowState.notifyObservers();
                 return yellowState;
             }
             @Override
@@ -60,10 +68,14 @@ public class TrafficLightCtrl {
                 if (previousState.equals(greenState)) {
                     previousState = currentState;
                     //TODO useful to update the current state and the old one
+                    currentState.notifyObservers();
+                    redState.notifyObservers();
                     return redState;
                 }else {
                     previousState = currentState;
                     //TODO useful to update the current state and the old one
+                    currentState.notifyObservers();
+                    greenState.notifyObservers();
                     return greenState;
                 }
             }
@@ -108,5 +120,12 @@ public class TrafficLightCtrl {
 
     public void stop() {
         doRun = false;
+    }
+
+    public static TrafficLightCtrl getInstance(){ //methode zur implementierung von TrafficLightCtrl als Singleton
+        if (trafficLightCtrl == null){
+            trafficLightCtrl = new TrafficLightCtrl();
+        }
+        return trafficLightCtrl;
     }
 }
